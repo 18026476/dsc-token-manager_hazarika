@@ -1,9 +1,10 @@
 .dart_tool/
 build/
+.idea/
+*.iml
 .packages
 .flutter-plugins
 .flutter-plugins-dependencies
-pubspec.lock
 *.db
 *.sqlite
 *.zip
