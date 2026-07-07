@@ -7,6 +7,7 @@ import '../services/usb_token_service.dart';
 import '../services/report_service.dart';
 import '../services/database_service.dart';
 import '../services/certificate_validation_service.dart';
+import 'reports_screen.dart';
 import '../services/intelligence_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -521,136 +522,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _reportsView() {
-    final analysis = intelligenceService.analyzeInventory(
+    final intelligence = intelligenceService.analyzeInventory(
       certificates: certificates,
       usbTokens: usbTokens,
     );
 
-    final recommendations = analysis['recommendations'] as List<String>;
-
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: ListView(
-            children: [
-              const Text(
-                "Intelligence Summary",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: ListTile(
-                  leading: Icon(
-                    analysis['riskLevel'] == 'High'
-                        ? Icons.dangerous
-                        : analysis['riskLevel'] == 'Medium'
-                            ? Icons.warning_amber
-                            : Icons.verified,
-                  ),
-                  title: Text(
-                    "Risk Level: ${analysis['riskLevel']}",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    "Urgent Renewals: ${analysis['urgentRenewals']} | "
-                    "Expiring Soon: ${analysis['expiringSoon']} | "
-                    "Expired: ${analysis['expired']} | "
-                    "Critical: ${analysis['critical']} | "
-                    "Warning: ${analysis['warning']}",
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  _miniMetric("Total Certificates", analysis['totalCertificates'].toString()),
-                  _miniMetric("USB Tokens", analysis['totalUsbTokens'].toString()),
-                  _miniMetric("Possible DSC", analysis['possibleDsc'].toString()),
-                  _miniMetric("Healthy", analysis['healthy'].toString()),
-                  _miniMetric("Warning", analysis['warning'].toString()),
-                  _miniMetric("Critical", analysis['critical'].toString()),
-                  _miniMetric("Expired", analysis['expired'].toString()),
-                  _miniMetric("Urgent Renewals", analysis['urgentRenewals'].toString()),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                "Recommendations",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              ...recommendations.map(
-                (item) => Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.tips_and_updates),
-                    title: Text(item),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                "Recent Scan History",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              if (recentScans.isEmpty)
-                const Text("No scan history yet. Click Scan All to save a scan."),
-              ...recentScans.map(
-                (scan) => Card(
-                  child: ListTile(
-                    title: Text("Scan ID: ${scan['id']}"),
-                    subtitle: Text(
-                      "Time: ${scan['scan_time']}\n"
-                      "Certificates: ${scan['certificate_count']} | "
-                      "Tokens: ${scan['token_count']} | "
-                      "Possible DSC: ${scan['possible_dsc_count']} | "
-                      "Expired: ${scan['expired_count']} | "
-                      "Warning: ${scan['warning_count']}",
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _miniMetric(String title, String value) {
-    return SizedBox(
-      width: 180,
-      height: 90,
-      child: Card(
-        elevation: 1,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                value,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return ReportsScreen(
+      intelligence: intelligence,
+      recentScans: recentScans,
     );
   }
 
@@ -684,5 +563,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
+
 
 
