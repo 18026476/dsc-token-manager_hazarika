@@ -8,6 +8,10 @@ import '../services/report_service.dart';
 import '../services/database_service.dart';
 import '../services/certificate_validation_service.dart';
 import 'reports_screen.dart';
+import 'employee_management_screen.dart';
+import 'certificate_assignment_screen.dart';
+import 'token_assignment_screen.dart';
+import 'ownership_report_screen.dart';
 import '../services/intelligence_service.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -274,7 +278,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         certificates.where((cert) => cert.possibleDsc == "Yes").length;
 
     return DefaultTabController(
-      length: 3,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: const Text("DSC Token Manager v0.9"),
@@ -283,6 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Tab(text: "Certificates"),
               Tab(text: "USB Tokens"),
               Tab(text: "Reports"),
+              Tab(text: "Employees"),`r`n              Tab(text: "Assign Certs"),`r`n              Tab(text: "Assign Devices"),`r`n              Tab(text: "Ownership"),
             ],
           ),
         ),
@@ -295,6 +300,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _certificatesView(possibleDscCount),
                     _usbTokenTable(),
                     _reportsView(),
+                    const EmployeeManagementScreen(),
+                    const CertificateAssignmentScreen(),
+                    const TokenAssignmentScreen(),
+                    const OwnershipReportScreen(),
                   ],
                 ),
               ),
@@ -563,6 +572,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
+
+
+
 
 
 
