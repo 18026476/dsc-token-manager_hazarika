@@ -44,13 +44,26 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
     return value.toString();
   }
 
+  int assignedCount(List<Map<String, dynamic>> rows) {
+    return rows.where((row) => ownerName(row) != 'Unassigned').length;
+  }
+
+  int unassignedCount(List<Map<String, dynamic>> rows) {
+    return rows.where((row) => ownerName(row) == 'Unassigned').length;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final assignedCertificates = assignedCount(certificateOwnership);
+    final unassignedCertificates = unassignedCount(certificateOwnership);
+    final assignedTokens = assignedCount(tokenOwnership);
+    final unassignedTokens = unassignedCount(tokenOwnership);
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Ownership Report'),
+          title: const Text('Ownership Dashboard'),
           actions: [
             IconButton(
               onPressed: loadOwnership,
@@ -68,24 +81,90 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
         ),
         body: loading
             ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
+            : Column(
                 children: [
-                  _certificateOwnershipView(),
-                  _tokenOwnershipView(),
-                  _auditLogView(),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        _summaryCard(
+                          'Assigned Certificates',
+                          assignedCertificates.toString(),
+                        ),
+                        _summaryCard(
+                          'Unassigned Certificates',
+                          unassignedCertificates.toString(),
+                        ),
+                        _summaryCard(
+                          'Assigned Signing Devices',
+                          assignedTokens.toString(),
+                        ),
+                        _summaryCard(
+                          'Unassigned Signing Devices',
+                          unassignedTokens.toString(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _certificateOwnershipView(),
+                        _tokenOwnershipView(),
+                        _auditLogView(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
       ),
     );
   }
 
+  Widget _summaryCard(String title, String value) {
+    return SizedBox(
+      width: 220,
+      height: 100,
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _certificateOwnershipView() {
     if (certificateOwnership.isEmpty) {
-      return const Center(child: Text('No certificate ownership records found.'));
+      return const Center(
+        child: Text('No certificate ownership records found.'),
+      );
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Card(
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -95,7 +174,7 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
                 DataColumn(label: Text('Certificate Holder')),
                 DataColumn(label: Text('Status')),
                 DataColumn(label: Text('Expiry')),
-                DataColumn(label: Text('Assigned Employee')),
+                DataColumn(label: Text('Owner')),
                 DataColumn(label: Text('Manager')),
                 DataColumn(label: Text('Location')),
                 DataColumn(label: Text('Thumbprint')),
@@ -122,21 +201,23 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
 
   Widget _tokenOwnershipView() {
     if (tokenOwnership.isEmpty) {
-      return const Center(child: Text('No signing device ownership records found.'));
+      return const Center(
+        child: Text('No signing device ownership records found.'),
+      );
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Card(
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: SingleChildScrollView(
             child: DataTable(
               columns: const [
-                DataColumn(label: Text('Device Name')),
+                DataColumn(label: Text('Signing Device')),
                 DataColumn(label: Text('Type')),
                 DataColumn(label: Text('Status')),
-                DataColumn(label: Text('Assigned Employee')),
+                DataColumn(label: Text('Owner')),
                 DataColumn(label: Text('Manager')),
                 DataColumn(label: Text('Location')),
                 DataColumn(label: Text('Instance ID')),
@@ -163,11 +244,13 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
 
   Widget _auditLogView() {
     if (auditLogs.isEmpty) {
-      return const Center(child: Text('No assignment audit logs found yet.'));
+      return const Center(
+        child: Text('No assignment audit logs found yet.'),
+      );
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: ListView(
         children: auditLogs.map((log) {
           return Card(
