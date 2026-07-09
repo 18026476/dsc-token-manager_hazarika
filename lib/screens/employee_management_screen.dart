@@ -14,11 +14,13 @@ class EmployeeManagementScreen extends StatefulWidget {
 class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   final AssetRepository repository = AssetRepository();
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController managerController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
+  final departmentNameController = TextEditingController();
+  final departmentDescriptionController = TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final phoneController = TextEditingController();
+  final managerController = TextEditingController();
+  final locationController = TextEditingController();
 
   List<EmployeeModel> employees = [];
   List<DepartmentModel> departments = [];
@@ -36,16 +38,145 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   Future<void> loadData() async {
     setState(() => loading = true);
 
+    await repository.ensureAssetTables();
+
     final deptResult = await repository.getDepartments();
     final employeeResult = await repository.getEmployees();
 
     setState(() {
       departments = deptResult;
       employees = employeeResult;
-      selectedDepartmentId =
-          departments.isNotEmpty ? departments.first.id : null;
+
+      if (departments.isNotEmpty &&
+          !departments.any((d) => d.id == selectedDepartmentId)) {
+        selectedDepartmentId = departments.first.id;
+      }
+
       loading = false;
     });
+  }
+
+  Future<void> addDepartment() async {
+    final name = departmentNameController.text.trim();
+    final description = departmentDescriptionController.text.trim();
+
+    if (name.isEmpty) {
+      setState(() => message = 'Department name is required.');
+      return;
+    }
+
+    await repository.addDepartment(
+      DepartmentModel(
+        name: name,
+        description: description.isEmpty ? 'No description' : description,
+      ),
+    );
+
+    departmentNameController.clear();
+    departmentDescriptionController.clear();
+
+    setState(() => message = 'Department created successfully.');
+    await loadData();
+  }
+
+  Future<void> showEditDepartmentDialog(DepartmentModel department) async {
+    final editNameController = TextEditingController(text: department.name);
+    final editDescriptionController =
+        TextEditingController(text: department.description);
+
+    final updated = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Department'),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: editNameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Department Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: editDescriptionController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Save Changes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (updated == true) {
+      final newName = editNameController.text.trim();
+      final newDescription = editDescriptionController.text.trim();
+
+      if (newName.isEmpty) {
+        setState(() => message = 'Department name cannot be empty.');
+        return;
+      }
+
+      await repository.updateDepartment(
+        DepartmentModel(
+          id: department.id,
+          name: newName,
+          description:
+              newDescription.isEmpty ? 'No description' : newDescription,
+        ),
+      );
+
+      setState(() => message = 'Department updated successfully.');
+      await loadData();
+    }
+  }
+
+  Future<void> confirmDeleteDepartment(DepartmentModel department) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Department'),
+          content: Text(
+            'Delete "${department.name}"?\n\nEmployees in this department will become Unassigned.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && department.id != null) {
+      await repository.deleteDepartment(department.id!);
+      setState(() => message = 'Department deleted successfully.');
+      await loadData();
+    }
   }
 
   Future<void> addEmployee() async {
@@ -72,12 +203,11 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
     locationController.clear();
 
     setState(() => message = 'Employee added successfully.');
-
     await loadData();
   }
 
   String departmentName(int? id) {
-    final matches = departments.where((department) => department.id == id);
+    final matches = departments.where((d) => d.id == id);
     if (matches.isEmpty) return 'Unassigned';
     return matches.first.name;
   }
@@ -86,7 +216,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Employee Management'),
+        title: const Text('Employee & Department Management'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -94,20 +224,49 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 380,
+              width: 420,
               child: Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: ListView(
                     children: [
                       const Text(
-                        'Add Employee',
+                        'Create Department',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: departmentNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Department Name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: departmentDescriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: loading ? null : addDepartment,
+                        child: const Text('Create Department'),
+                      ),
+                      const Divider(height: 32),
+                      const Text(
+                        'Add Employee',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                       TextField(
                         controller: nameController,
                         decoration: const InputDecoration(
@@ -147,9 +306,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                             )
                             .toList(),
                         onChanged: (value) {
-                          setState(() {
-                            selectedDepartmentId = value;
-                          });
+                          setState(() => selectedDepartmentId = value);
                         },
                       ),
                       const SizedBox(height: 12),
@@ -182,13 +339,50 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
             ),
             const SizedBox(width: 20),
             Expanded(
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView(
+              child: loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: ListView(
                           children: [
+                            const Text(
+                              'Departments',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            ...departments.map(
+                              (department) => Card(
+                                child: ListTile(
+                                  leading: const Icon(Icons.business),
+                                  title: Text(department.name),
+                                  subtitle: Text(department.description),
+                                  trailing: Wrap(
+                                    spacing: 8,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit),
+                                        tooltip: 'Edit department',
+                                        onPressed: () =>
+                                            showEditDepartmentDialog(
+                                          department,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete),
+                                        tooltip: 'Delete department',
+                                        onPressed: () =>
+                                            confirmDeleteDepartment(department),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
                             const Text(
                               'Employee Directory',
                               style: TextStyle(
@@ -196,7 +390,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 12),
                             ...employees.map(
                               (employee) => Card(
                                 child: ListTile(
@@ -214,8 +408,8 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                             ),
                           ],
                         ),
-                ),
-              ),
+                      ),
+                    ),
             ),
           ],
         ),

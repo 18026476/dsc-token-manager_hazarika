@@ -13,6 +13,7 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
 
   List<Map<String, dynamic>> certificateOwnership = [];
   List<Map<String, dynamic>> tokenOwnership = [];
+  List<Map<String, dynamic>> auditLogs = [];
 
   bool loading = false;
 
@@ -27,33 +28,41 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
 
     final certs = await repository.getCertificateOwnership();
     final tokens = await repository.getTokenOwnership();
+    final logs = await repository.getAssignmentAuditLogs();
 
     setState(() {
       certificateOwnership = certs;
       tokenOwnership = tokens;
+      auditLogs = logs;
       loading = false;
     });
   }
 
   String ownerName(Map<String, dynamic> row) {
     final value = row['employee_name'];
-    if (value == null || value.toString().trim().isEmpty) {
-      return 'Unassigned';
-    }
+    if (value == null || value.toString().trim().isEmpty) return 'Unassigned';
     return value.toString();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Ownership Report'),
+          actions: [
+            IconButton(
+              onPressed: loadOwnership,
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refresh ownership report',
+            ),
+          ],
           bottom: const TabBar(
             tabs: [
-              Tab(text: 'Certificate Ownership'),
-              Tab(text: 'Signing Device Ownership'),
+              Tab(text: 'Certificates'),
+              Tab(text: 'Signing Devices'),
+              Tab(text: 'Audit Logs'),
             ],
           ),
         ),
@@ -63,6 +72,7 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
                 children: [
                   _certificateOwnershipView(),
                   _tokenOwnershipView(),
+                  _auditLogView(),
                 ],
               ),
       ),
@@ -71,9 +81,7 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
 
   Widget _certificateOwnershipView() {
     if (certificateOwnership.isEmpty) {
-      return const Center(
-        child: Text('No certificate ownership records found.'),
-      );
+      return const Center(child: Text('No certificate ownership records found.'));
     }
 
     return Padding(
@@ -114,9 +122,7 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
 
   Widget _tokenOwnershipView() {
     if (tokenOwnership.isEmpty) {
-      return const Center(
-        child: Text('No signing device ownership records found.'),
-      );
+      return const Center(child: Text('No signing device ownership records found.'));
     }
 
     return Padding(
@@ -128,7 +134,7 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
             child: DataTable(
               columns: const [
                 DataColumn(label: Text('Device Name')),
-                DataColumn(label: Text('Brand')),
+                DataColumn(label: Text('Type')),
                 DataColumn(label: Text('Status')),
                 DataColumn(label: Text('Assigned Employee')),
                 DataColumn(label: Text('Manager')),
@@ -151,6 +157,32 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _auditLogView() {
+    if (auditLogs.isEmpty) {
+      return const Center(child: Text('No assignment audit logs found yet.'));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: ListView(
+        children: auditLogs.map((log) {
+          return Card(
+            child: ListTile(
+              leading: const Icon(Icons.history),
+              title: Text(log['action']?.toString() ?? ''),
+              subtitle: Text(
+                'Asset Type: ${log['asset_type']}\n'
+                'Employee: ${log['employee_name']}\n'
+                'Asset ID: ${log['asset_identifier']}\n'
+                'Time: ${log['created_at']}',
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

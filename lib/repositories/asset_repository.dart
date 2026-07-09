@@ -1,6 +1,6 @@
+import 'package:sqflite_common/sqlite_api.dart';
 import '../models/department_model.dart';
 import '../models/employee_model.dart';
-import 'package:sqflite_common/sqlite_api.dart';
 import '../services/database_service.dart';
 
 class AssetRepository {
@@ -26,11 +26,56 @@ class AssetRepository {
         assigned_at TEXT
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS assignment_audit_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        asset_type TEXT,
+        asset_identifier TEXT,
+        employee_id INTEGER,
+        employee_name TEXT,
+        action TEXT,
+        created_at TEXT
+      )
+    ''');
   }
 
   Future<int> addDepartment(DepartmentModel department) async {
     final db = await databaseService.database;
     return db.insert('departments', department.toMap());
+  }
+
+  Future<void> updateDepartment(DepartmentModel department) async {
+    if (department.id == null) return;
+
+    final db = await databaseService.database;
+
+    await db.update(
+      'departments',
+      {
+        'name': department.name,
+        'description': department.description,
+      },
+      where: 'id = ?',
+      whereArgs: [department.id],
+    );
+  }
+
+  Future<void> deleteDepartment(int departmentId) async {
+    final db = await databaseService.database;
+
+    await db.update(
+      'employees',
+      {'department_id': null},
+      where: 'department_id = ?',
+      whereArgs: [departmentId],
+    );
+
+    await db.delete(
+      'departments',
+      where: 'id = ?',
+      whereArgs: [departmentId],
+    );
   }
 
   Future<List<DepartmentModel>> getDepartments() async {
@@ -52,14 +97,13 @@ class AssetRepository {
 
   Future<void> seedDemoEmployeesIfEmpty() async {
     final db = await databaseService.database;
-
-    final employeeCount = await db.rawQuery('SELECT COUNT(*) AS count FROM employees');
-    final count = employeeCount.first['count'] as int;
+    final result = await db.rawQuery('SELECT COUNT(*) AS count FROM employees');
+    final count = result.first['count'] as int;
 
     if (count > 0) return;
 
     final departments = await getDepartments();
-    int? financeId = departments.isNotEmpty ? departments.first.id : null;
+    final financeId = departments.isNotEmpty ? departments.first.id : null;
 
     await addEmployee(EmployeeModel(
       fullName: 'Rahul Sharma',
@@ -69,15 +113,40 @@ class AssetRepository {
       managerName: 'Priya Singh',
       location: 'Mumbai Office',
     ));
+  }
 
-    await addEmployee(EmployeeModel(
-      fullName: 'Amit Verma',
-      email: 'amit.verma@example.com',
-      phone: '+91 91111 11111',
-      departmentId: financeId,
-      managerName: 'Neha Singh',
-      location: 'Delhi Office',
-    ));
+  Future<String> _employeeName(int employeeId) async {
+    final db = await databaseService.database;
+    final rows = await db.query(
+      'employees',
+      where: 'id = ?',
+      whereArgs: [employeeId],
+      limit: 1,
+    );
+
+    if (rows.isEmpty) return 'Unknown Employee';
+    return rows.first['full_name']?.toString() ?? 'Unknown Employee';
+  }
+
+  Future<void> _addAssignmentAuditLog({
+    required String assetType,
+    required String assetIdentifier,
+    required int employeeId,
+    required String action,
+  }) async {
+    final db = await databaseService.database;
+    await ensureAssetTables();
+
+    final name = await _employeeName(employeeId);
+
+    await db.insert('assignment_audit_logs', {
+      'asset_type': assetType,
+      'asset_identifier': assetIdentifier,
+      'employee_id': employeeId,
+      'employee_name': name,
+      'action': action,
+      'created_at': DateTime.now().toIso8601String(),
+    });
   }
 
   Future<void> assignCertificateToEmployee({
@@ -95,6 +164,13 @@ class AssetRepository {
         'assigned_at': DateTime.now().toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    await _addAssignmentAuditLog(
+      assetType: 'Certificate',
+      assetIdentifier: thumbprint,
+      employeeId: employeeId,
+      action: 'Certificate assigned to employee',
     );
   }
 
@@ -114,6 +190,13 @@ class AssetRepository {
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    await _addAssignmentAuditLog(
+      assetType: 'Signing Device',
+      assetIdentifier: instanceId,
+      employeeId: employeeId,
+      action: 'Signing device assigned to employee',
+    );
   }
 
   Future<List<Map<String, dynamic>>> getCertificateOwnership() async {
@@ -130,10 +213,8 @@ class AssetRepository {
         e.location AS location,
         e.manager_name AS manager_name
       FROM certificate_snapshots cs
-      LEFT JOIN certificate_assignments ca
-        ON cs.thumbprint = ca.thumbprint
-      LEFT JOIN employees e
-        ON ca.employee_id = e.id
+      LEFT JOIN certificate_assignments ca ON cs.thumbprint = ca.thumbprint
+      LEFT JOIN employees e ON ca.employee_id = e.id
       GROUP BY cs.thumbprint
       ORDER BY cs.expiry_date ASC
     ''');
@@ -153,12 +234,21 @@ class AssetRepository {
         e.location AS location,
         e.manager_name AS manager_name
       FROM usb_token_snapshots uts
-      LEFT JOIN token_assignments ta
-        ON uts.instance_id = ta.instance_id
-      LEFT JOIN employees e
-        ON ta.employee_id = e.id
+      LEFT JOIN token_assignments ta ON uts.instance_id = ta.instance_id
+      LEFT JOIN employees e ON ta.employee_id = e.id
       GROUP BY uts.instance_id
       ORDER BY uts.device_name ASC
     ''');
+  }
+
+  Future<List<Map<String, dynamic>>> getAssignmentAuditLogs() async {
+    final db = await databaseService.database;
+    await ensureAssetTables();
+
+    return db.query(
+      'assignment_audit_logs',
+      orderBy: 'id DESC',
+      limit: 50,
+    );
   }
 }
