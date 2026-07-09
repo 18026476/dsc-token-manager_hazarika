@@ -287,7 +287,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Tab(text: "Certificates"),
               Tab(text: "USB Tokens"),
               Tab(text: "Reports"),
-              Tab(text: "Employees"),`r`n              Tab(text: "Assign Certs"),`r`n              Tab(text: "Assign Devices"),`r`n              Tab(text: "Ownership"),
+              Tab(text: "Employees"),
+              Tab(text: "Assign Certs"),
+              Tab(text: "Assign Devices"),
+              Tab(text: "Ownership"),
             ],
           ),
         ),
@@ -572,6 +575,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
+
 
 
 
