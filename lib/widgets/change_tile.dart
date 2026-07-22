@@ -4,10 +4,7 @@ import '../models/change_model.dart';
 class ChangeTile extends StatelessWidget {
   final ChangeModel change;
 
-  const ChangeTile({
-    super.key,
-    required this.change,
-  });
+  const ChangeTile({super.key, required this.change});
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +24,7 @@ class ChangeTile extends StatelessWidget {
 
     return Card(
       child: ListTile(
-        leading: Icon(
-          Icons.change_circle,
-          color: colour,
-        ),
+        leading: Icon(Icons.change_circle, color: colour),
         title: Text(change.title),
         subtitle: Text(change.description),
         trailing: Text(change.severity),

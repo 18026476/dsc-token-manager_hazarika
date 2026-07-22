@@ -17,9 +17,7 @@ Future<void> main() async {
   debugPrint('Employee count: ${employees.length}');
 
   for (final employee in employees) {
-    debugPrint(
-      '${employee.id} | ${employee.fullName} | ${employee.email}',
-    );
+    debugPrint('${employee.id} | ${employee.fullName} | ${employee.email}');
   }
 
   debugPrint('================================');

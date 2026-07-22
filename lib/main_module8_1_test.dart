@@ -29,10 +29,9 @@ Future<void> main() async {
   final employees = await repo.getEmployees();
   final updatedDepartments = await repo.getDepartments();
 
-  runApp(Module81TestApp(
-    departments: updatedDepartments,
-    employees: employees,
-  ));
+  runApp(
+    Module81TestApp(departments: updatedDepartments, employees: employees),
+  );
 }
 
 class Module81TestApp extends StatelessWidget {

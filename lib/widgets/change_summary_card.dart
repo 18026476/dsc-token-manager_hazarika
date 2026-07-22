@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class ChangeSummaryCard extends StatelessWidget {
   final int count;
 
-  const ChangeSummaryCard({
-    super.key,
-    required this.count,
-  });
+  const ChangeSummaryCard({super.key, required this.count});
 
   @override
   Widget build(BuildContext context) {

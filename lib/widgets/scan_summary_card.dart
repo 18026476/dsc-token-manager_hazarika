@@ -4,11 +4,7 @@ class ScanSummaryCard extends StatelessWidget {
   final String title;
   final String value;
 
-  const ScanSummaryCard({
-    super.key,
-    required this.title,
-    required this.value,
-  });
+  const ScanSummaryCard({super.key, required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {

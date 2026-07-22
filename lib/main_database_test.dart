@@ -14,10 +14,7 @@ Future<void> main() async {
     description: 'Database foundation created successfully.',
   );
 
-  runApp(DatabaseTestApp(
-    dbPath: dbPath,
-    departments: departments,
-  ));
+  runApp(DatabaseTestApp(dbPath: dbPath, departments: departments));
 }
 
 class DatabaseTestApp extends StatelessWidget {

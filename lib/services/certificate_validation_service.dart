@@ -5,7 +5,8 @@ class CertificateValidationService {
   Future<Map<String, String>> validateCertificate(String thumbprint) async {
     final safeThumbprint = thumbprint.replaceAll("'", "''");
 
-    final script = '''
+    final script =
+        '''
 \$Thumbprint = '$safeThumbprint'
 
 \$stores = @(

@@ -52,10 +52,7 @@ class AssetRepository {
 
     await db.update(
       'departments',
-      {
-        'name': department.name,
-        'description': department.description,
-      },
+      {'name': department.name, 'description': department.description},
       where: 'id = ?',
       whereArgs: [department.id],
     );
@@ -71,11 +68,7 @@ class AssetRepository {
       whereArgs: [departmentId],
     );
 
-    await db.delete(
-      'departments',
-      where: 'id = ?',
-      whereArgs: [departmentId],
-    );
+    await db.delete('departments', where: 'id = ?', whereArgs: [departmentId]);
   }
 
   Future<List<DepartmentModel>> getDepartments() async {
@@ -105,14 +98,16 @@ class AssetRepository {
     final departments = await getDepartments();
     final financeId = departments.isNotEmpty ? departments.first.id : null;
 
-    await addEmployee(EmployeeModel(
-      fullName: 'Rahul Sharma',
-      email: 'rahul.sharma@example.com',
-      phone: '+91 90000 00000',
-      departmentId: financeId,
-      managerName: 'Priya Singh',
-      location: 'Mumbai Office',
-    ));
+    await addEmployee(
+      EmployeeModel(
+        fullName: 'Rahul Sharma',
+        email: 'rahul.sharma@example.com',
+        phone: '+91 90000 00000',
+        departmentId: financeId,
+        managerName: 'Priya Singh',
+        location: 'Mumbai Office',
+      ),
+    );
   }
 
   Future<String> _employeeName(int employeeId) async {
@@ -156,15 +151,11 @@ class AssetRepository {
     final db = await databaseService.database;
     await ensureAssetTables();
 
-    await db.insert(
-      'certificate_assignments',
-      {
-        'thumbprint': thumbprint,
-        'employee_id': employeeId,
-        'assigned_at': DateTime.now().toIso8601String(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('certificate_assignments', {
+      'thumbprint': thumbprint,
+      'employee_id': employeeId,
+      'assigned_at': DateTime.now().toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     await _addAssignmentAuditLog(
       assetType: 'Certificate',
@@ -181,15 +172,11 @@ class AssetRepository {
     final db = await databaseService.database;
     await ensureAssetTables();
 
-    await db.insert(
-      'token_assignments',
-      {
-        'instance_id': instanceId,
-        'employee_id': employeeId,
-        'assigned_at': DateTime.now().toIso8601String(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert('token_assignments', {
+      'instance_id': instanceId,
+      'employee_id': employeeId,
+      'assigned_at': DateTime.now().toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     await _addAssignmentAuditLog(
       assetType: 'Signing Device',
@@ -245,10 +232,6 @@ class AssetRepository {
     final db = await databaseService.database;
     await ensureAssetTables();
 
-    return db.query(
-      'assignment_audit_logs',
-      orderBy: 'id DESC',
-      limit: 50,
-    );
+    return db.query('assignment_audit_logs', orderBy: 'id DESC', limit: 50);
   }
 }

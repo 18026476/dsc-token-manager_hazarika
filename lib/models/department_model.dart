@@ -3,11 +3,7 @@ class DepartmentModel {
   final String name;
   final String description;
 
-  DepartmentModel({
-    this.id,
-    required this.name,
-    required this.description,
-  });
+  DepartmentModel({this.id, required this.name, required this.description});
 
   Map<String, dynamic> toMap() {
     return {

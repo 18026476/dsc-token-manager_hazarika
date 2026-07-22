@@ -11,14 +11,17 @@ class IntelligenceService {
     final critical = certificates.where((c) => c.status == 'Critical').length;
     final warning = certificates.where((c) => c.status == 'Warning').length;
     final healthy = certificates.where((c) => c.status == 'Healthy').length;
-    final possibleDsc =
-        certificates.where((c) => c.possibleDsc == 'Yes').length;
+    final possibleDsc = certificates
+        .where((c) => c.possibleDsc == 'Yes')
+        .length;
 
-    final expiringSoon =
-        certificates.where((c) => c.daysLeft >= 0 && c.daysLeft <= 90).length;
+    final expiringSoon = certificates
+        .where((c) => c.daysLeft >= 0 && c.daysLeft <= 90)
+        .length;
 
-    final urgentRenewals =
-        certificates.where((c) => c.daysLeft >= 0 && c.daysLeft <= 30).length;
+    final urgentRenewals = certificates
+        .where((c) => c.daysLeft >= 0 && c.daysLeft <= 30)
+        .length;
 
     String riskLevel = 'Low';
 
@@ -61,9 +64,7 @@ class IntelligenceService {
     }
 
     if (recommendations.isEmpty) {
-      recommendations.add(
-        'Certificate and signing inventory appears healthy.',
-      );
+      recommendations.add('Certificate and signing inventory appears healthy.');
     }
 
     return IntelligenceModel(

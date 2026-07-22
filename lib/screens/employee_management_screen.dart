@@ -81,8 +81,9 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
 
   Future<void> showEditDepartmentDialog(DepartmentModel department) async {
     final editNameController = TextEditingController(text: department.name);
-    final editDescriptionController =
-        TextEditingController(text: department.description);
+    final editDescriptionController = TextEditingController(
+      text: department.description,
+    );
 
     final updated = await showDialog<bool>(
       context: context,
@@ -139,8 +140,9 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
         DepartmentModel(
           id: department.id,
           name: newName,
-          description:
-              newDescription.isEmpty ? 'No description' : newDescription,
+          description: newDescription.isEmpty
+              ? 'No description'
+              : newDescription,
         ),
       );
 
@@ -215,9 +217,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Employee & Department Management'),
-      ),
+      appBar: AppBar(title: const Text('Employee & Department Management')),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Row(
@@ -368,8 +368,8 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                                         tooltip: 'Edit department',
                                         onPressed: () =>
                                             showEditDepartmentDialog(
-                                          department,
-                                        ),
+                                              department,
+                                            ),
                                       ),
                                       IconButton(
                                         icon: const Icon(Icons.delete),

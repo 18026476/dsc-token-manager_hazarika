@@ -85,11 +85,7 @@ class ChangeDetectionService {
 
     await ensureChangeHistoryTable();
 
-    final scans = await db.query(
-      'scan_history',
-      orderBy: 'id DESC',
-      limit: 2,
-    );
+    final scans = await db.query('scan_history', orderBy: 'id DESC', limit: 2);
 
     if (scans.length < 2) {
       return {
@@ -132,13 +128,11 @@ class ChangeDetectionService {
     final changes = <String>[];
 
     final previousCertMap = {
-      for (final cert in previousCerts)
-        cert['thumbprint'].toString(): cert
+      for (final cert in previousCerts) cert['thumbprint'].toString(): cert,
     };
 
     final currentCertMap = {
-      for (final cert in currentCerts)
-        cert['thumbprint'].toString(): cert
+      for (final cert in currentCerts) cert['thumbprint'].toString(): cert,
     };
 
     for (final thumbprint in currentCertMap.keys) {
@@ -184,12 +178,11 @@ class ChangeDetectionService {
 
     final previousTokenMap = {
       for (final token in previousTokens)
-        token['instance_id'].toString(): token
+        token['instance_id'].toString(): token,
     };
 
     final currentTokenMap = {
-      for (final token in currentTokens)
-        token['instance_id'].toString(): token
+      for (final token in currentTokens) token['instance_id'].toString(): token,
     };
 
     for (final id in currentTokenMap.keys) {
@@ -209,14 +202,13 @@ class ChangeDetectionService {
     }
 
     if (changes.isEmpty) {
-      changes.add('No meaningful changes detected between the latest two scans.');
+      changes.add(
+        'No meaningful changes detected between the latest two scans.',
+      );
     }
 
     for (final change in changes) {
-      await _saveChange(
-        scanId: currentScanId,
-        changeText: change,
-      );
+      await _saveChange(scanId: currentScanId, changeText: change);
     }
 
     return {
@@ -232,10 +224,6 @@ class ChangeDetectionService {
 
     await ensureChangeHistoryTable();
 
-    return db.query(
-      'change_history',
-      orderBy: 'id DESC',
-      limit: 20,
-    );
+    return db.query('change_history', orderBy: 'id DESC', limit: 20);
   }
 }

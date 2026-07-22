@@ -8,10 +8,7 @@ Future<void> main() async {
   final result = await service.compareLatestScans();
   final history = await service.getRecentChangeHistory();
 
-  runApp(Module73TestApp(
-    result: result,
-    history: history,
-  ));
+  runApp(Module73TestApp(result: result, history: history));
 }
 
 class Module73TestApp extends StatelessWidget {

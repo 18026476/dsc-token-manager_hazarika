@@ -18,10 +18,7 @@ class DatabaseService {
 
     _database = await databaseFactory.openDatabase(
       dbPath,
-      options: OpenDatabaseOptions(
-        version: 1,
-        onCreate: _createDatabase,
-      ),
+      options: OpenDatabaseOptions(version: 1, onCreate: _createDatabase),
     );
 
     return _database!;
@@ -192,11 +189,13 @@ class DatabaseService {
     final db = await database;
     final now = DateTime.now().toIso8601String();
 
-    final possibleDscCount =
-        certificates.where((c) => c.possibleDsc == 'Yes').length;
+    final possibleDscCount = certificates
+        .where((c) => c.possibleDsc == 'Yes')
+        .length;
 
-    final expiredCount =
-        certificates.where((c) => c.status == 'Expired').length;
+    final expiredCount = certificates
+        .where((c) => c.status == 'Expired')
+        .length;
 
     final warningCount = certificates
         .where((c) => c.status == 'Warning' || c.status == 'Critical')
@@ -252,11 +251,7 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getRecentScans() async {
     final db = await database;
 
-    return db.query(
-      'scan_history',
-      orderBy: 'id DESC',
-      limit: 10,
-    );
+    return db.query('scan_history', orderBy: 'id DESC', limit: 10);
   }
 
   Future<void> addAuditLog({

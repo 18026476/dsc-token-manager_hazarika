@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class RecommendationCard extends StatelessWidget {
   final String text;
 
-  const RecommendationCard({
-    super.key,
-    required this.text,
-  });
+  const RecommendationCard({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {

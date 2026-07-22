@@ -61,15 +61,17 @@ $results | Sort-Object deviceName | ConvertTo-Json -Depth 5
       final decoded = jsonDecode(result.stdout);
       final List<dynamic> items = decoded is List ? decoded : [decoded];
 
-      tokens.addAll(items.map((item) {
-        return UsbTokenModel(
-          deviceName: item['deviceName']?.toString() ?? '',
-          deviceClass: item['deviceClass']?.toString() ?? '',
-          status: item['status']?.toString() ?? '',
-          instanceId: item['instanceId']?.toString() ?? '',
-          possibleTokenType: item['possibleTokenType']?.toString() ?? '',
-        );
-      }));
+      tokens.addAll(
+        items.map((item) {
+          return UsbTokenModel(
+            deviceName: item['deviceName']?.toString() ?? '',
+            deviceClass: item['deviceClass']?.toString() ?? '',
+            status: item['status']?.toString() ?? '',
+            instanceId: item['instanceId']?.toString() ?? '',
+            possibleTokenType: item['possibleTokenType']?.toString() ?? '',
+          );
+        }),
+      );
     }
 
     tokens.add(
@@ -103,17 +105,20 @@ $results | Sort-Object deviceName | ConvertTo-Json -Depth 5
   Future<String> exportUsbCsv(List<UsbTokenModel> tokens) async {
     final rows = <List<dynamic>>[
       ['Device Name', 'Class', 'Status', 'Possible Type', 'Instance ID'],
-      ...tokens.map((token) => [
-            token.deviceName,
-            token.deviceClass,
-            token.status,
-            token.possibleTokenType,
-            token.instanceId,
-          ])
+      ...tokens.map(
+        (token) => [
+          token.deviceName,
+          token.deviceClass,
+          token.status,
+          token.possibleTokenType,
+          token.instanceId,
+        ],
+      ),
     ];
 
-    final csvData =
-        rows.map((row) => row.map(_csvEscape).join(',')).join('\r\n');
+    final csvData = rows
+        .map((row) => row.map(_csvEscape).join(','))
+        .join('\r\n');
 
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}\\usb_token_inventory.csv');

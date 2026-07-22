@@ -21,7 +21,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final UsbTokenService usbTokenService = UsbTokenService();
   final ReportService reportService = ReportService();
   final DatabaseService databaseService = DatabaseService();
-  final CertificateValidationService validationService = CertificateValidationService();
+  final CertificateValidationService validationService =
+      CertificateValidationService();
   final IntelligenceService intelligenceService = IntelligenceService();
 
   List<CertificateModel> certificates = [];
@@ -46,7 +47,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           cert.thumbprint.toLowerCase().contains(query) ||
           cert.store.toLowerCase().contains(query);
 
-      final matchesStatus = statusFilter == "All" || cert.status == statusFilter;
+      final matchesStatus =
+          statusFilter == "All" || cert.status == statusFilter;
       final matchesDsc = !possibleDscOnly || cert.possibleDsc == "Yes";
 
       return matchesSearch && matchesStatus && matchesDsc;
@@ -131,7 +133,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return;
     }
 
-    final path = await reportService.exportCombinedReport(certificates, usbTokens);
+    final path = await reportService.exportCombinedReport(
+      certificates,
+      usbTokens,
+    );
 
     await databaseService.addAuditLog(
       eventType: 'EXPORT_COMBINED_REPORT',
@@ -172,16 +177,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const Divider(height: 30),
                       const Text(
                         "Validation Engine",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 10),
                       if (validating) const Text("Validating certificate..."),
                       if (validation != null) ...[
-                        _detailRow("Validation Status", validation!['validationStatus'] ?? ''),
+                        _detailRow(
+                          "Validation Status",
+                          validation!['validationStatus'] ?? '',
+                        ),
                         _detailRow("Exists", validation!['exists'] ?? ''),
-                        _detailRow("Validated Store", validation!['store'] ?? ''),
-                        _detailRow("Enhanced Key Usage", validation!['enhancedKeyUsage'] ?? ''),
-                        _detailRow("Validated Private Key", validation!['hasPrivateKey'] ?? ''),
+                        _detailRow(
+                          "Validated Store",
+                          validation!['store'] ?? '',
+                        ),
+                        _detailRow(
+                          "Enhanced Key Usage",
+                          validation!['enhancedKeyUsage'] ?? '',
+                        ),
+                        _detailRow(
+                          "Validated Private Key",
+                          validation!['hasPrivateKey'] ?? '',
+                        ),
                       ],
                     ],
                   ),
@@ -190,15 +210,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
               actions: [
                 TextButton(
                   onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: cert.thumbprint));
-                    if (mounted) setState(() => message = "Thumbprint copied to clipboard.");
+                    await Clipboard.setData(
+                      ClipboardData(text: cert.thumbprint),
+                    );
+                    if (mounted)
+                      setState(
+                        () => message = "Thumbprint copied to clipboard.",
+                      );
                   },
                   child: const Text("Copy Thumbprint"),
                 ),
                 TextButton(
                   onPressed: () async {
-                    await Clipboard.setData(ClipboardData(text: cert.serialNumber));
-                    if (mounted) setState(() => message = "Serial number copied to clipboard.");
+                    await Clipboard.setData(
+                      ClipboardData(text: cert.serialNumber),
+                    );
+                    if (mounted)
+                      setState(
+                        () => message = "Serial number copied to clipboard.",
+                      );
                   },
                   child: const Text("Copy Serial"),
                 ),
@@ -208,8 +238,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       : () async {
                           setDialogState(() => validating = true);
 
-                          final result =
-                              await validationService.validateCertificate(cert.thumbprint);
+                          final result = await validationService
+                              .validateCertificate(cert.thumbprint);
 
                           setDialogState(() {
                             validation = result;
@@ -219,7 +249,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           await databaseService.addAuditLog(
                             eventType: 'CERTIFICATE_VALIDATED',
                             entityType: 'CERTIFICATE',
-                            description: 'Validated certificate ${cert.thumbprint}',
+                            description:
+                                'Validated certificate ${cert.thumbprint}',
                           );
                         },
                   child: const Text("Validate"),
@@ -269,8 +300,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final possibleDscCount =
-        certificates.where((cert) => cert.possibleDsc == "Yes").length;
+    final possibleDscCount = certificates
+        .where((cert) => cert.possibleDsc == "Yes")
+        .length;
 
     return DefaultTabController(
       length: 3,
@@ -326,14 +358,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     runSpacing: 12,
                     alignment: WrapAlignment.center,
                     children: [
-                      _summaryCard("Certificates", certificates.length.toString()),
-                      _summaryCard("Filtered", filteredCertificates.length.toString()),
+                      _summaryCard(
+                        "Certificates",
+                        certificates.length.toString(),
+                      ),
+                      _summaryCard(
+                        "Filtered",
+                        filteredCertificates.length.toString(),
+                      ),
                       _summaryCard("Possible DSC", possibleDscCount.toString()),
                       _summaryCard("USB / Tokens", usbTokens.length.toString()),
                       _summaryCard(
                         "Warning / Critical",
                         certificates
-                            .where((c) => c.status == "Warning" || c.status == "Critical")
+                            .where(
+                              (c) =>
+                                  c.status == "Warning" ||
+                                  c.status == "Critical",
+                            )
                             .length
                             .toString(),
                       ),
@@ -417,18 +459,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     items: const [
                       DropdownMenuItem(value: "All", child: Text("All")),
-                      DropdownMenuItem(value: "Healthy", child: Text("Healthy")),
-                      DropdownMenuItem(value: "Warning", child: Text("Warning")),
-                      DropdownMenuItem(value: "Critical", child: Text("Critical")),
-                      DropdownMenuItem(value: "Expired", child: Text("Expired")),
+                      DropdownMenuItem(
+                        value: "Healthy",
+                        child: Text("Healthy"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Warning",
+                        child: Text("Warning"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Critical",
+                        child: Text("Critical"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Expired",
+                        child: Text("Expired"),
+                      ),
                     ],
-                    onChanged: (value) => setState(() => statusFilter = value ?? "All"),
+                    onChanged: (value) =>
+                        setState(() => statusFilter = value ?? "All"),
                   ),
                 ),
                 FilterChip(
                   label: const Text("Possible DSC only"),
                   selected: possibleDscOnly,
-                  onSelected: (value) => setState(() => possibleDscOnly = value),
+                  onSelected: (value) =>
+                      setState(() => possibleDscOnly = value),
                 ),
                 Text("Showing ${filtered.length} of ${certificates.length}"),
               ],
@@ -485,7 +541,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _usbTokenTable() {
     if (usbTokens.isEmpty) {
-      return const Center(child: Text("No USB token or smart card devices detected."));
+      return const Center(
+        child: Text("No USB token or smart card devices detected."),
+      );
     }
 
     return Padding(
@@ -546,8 +604,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     analysis['riskLevel'] == 'High'
                         ? Icons.dangerous
                         : analysis['riskLevel'] == 'Medium'
-                            ? Icons.warning_amber
-                            : Icons.verified,
+                        ? Icons.warning_amber
+                        : Icons.verified,
                   ),
                   title: Text(
                     "Risk Level: ${analysis['riskLevel']}",
@@ -570,14 +628,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 spacing: 12,
                 runSpacing: 12,
                 children: [
-                  _miniMetric("Total Certificates", analysis['totalCertificates'].toString()),
-                  _miniMetric("USB Tokens", analysis['totalUsbTokens'].toString()),
-                  _miniMetric("Possible DSC", analysis['possibleDsc'].toString()),
+                  _miniMetric(
+                    "Total Certificates",
+                    analysis['totalCertificates'].toString(),
+                  ),
+                  _miniMetric(
+                    "USB Tokens",
+                    analysis['totalUsbTokens'].toString(),
+                  ),
+                  _miniMetric(
+                    "Possible DSC",
+                    analysis['possibleDsc'].toString(),
+                  ),
                   _miniMetric("Healthy", analysis['healthy'].toString()),
                   _miniMetric("Warning", analysis['warning'].toString()),
                   _miniMetric("Critical", analysis['critical'].toString()),
                   _miniMetric("Expired", analysis['expired'].toString()),
-                  _miniMetric("Urgent Renewals", analysis['urgentRenewals'].toString()),
+                  _miniMetric(
+                    "Urgent Renewals",
+                    analysis['urgentRenewals'].toString(),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -601,7 +671,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 12),
               if (recentScans.isEmpty)
-                const Text("No scan history yet. Click Scan All to save a scan."),
+                const Text(
+                  "No scan history yet. Click Scan All to save a scan.",
+                ),
               ...recentScans.map(
                 (scan) => Card(
                   child: ListTile(
@@ -645,7 +717,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 6),
               Text(
                 value,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -675,7 +750,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 6),
               Text(
                 value,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
@@ -684,4 +762,3 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
-

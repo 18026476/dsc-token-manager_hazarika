@@ -37,10 +37,7 @@ class _TokenAssignmentScreenState extends State<TokenAssignmentScreen> {
 
     employees = await repository.getEmployees();
 
-    final tokenRows = await db.query(
-      'usb_token_snapshots',
-      orderBy: 'id DESC',
-    );
+    final tokenRows = await db.query('usb_token_snapshots', orderBy: 'id DESC');
 
     final unique = <String, Map<String, dynamic>>{};
 
@@ -92,15 +89,11 @@ class _TokenAssignmentScreenState extends State<TokenAssignmentScreen> {
   @override
   Widget build(BuildContext context) {
     if (loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Signing Device Assignment'),
-      ),
+      appBar: AppBar(title: const Text('Signing Device Assignment')),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -130,8 +123,14 @@ class _TokenAssignmentScreenState extends State<TokenAssignmentScreen> {
 
                         return DataRow(
                           cells: [
-                            DataCell(Text(token['device_name']?.toString() ?? '')),
-                            DataCell(Text(token['possible_token_type']?.toString() ?? '')),
+                            DataCell(
+                              Text(token['device_name']?.toString() ?? ''),
+                            ),
+                            DataCell(
+                              Text(
+                                token['possible_token_type']?.toString() ?? '',
+                              ),
+                            ),
                             DataCell(Text(token['status']?.toString() ?? '')),
                             DataCell(Text(employeeName(selected))),
                             DataCell(

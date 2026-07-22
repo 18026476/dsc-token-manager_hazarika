@@ -40,10 +40,7 @@ Future<void> main() async {
 
   final recentScans = await dbService.getRecentScans();
 
-  runApp(Module2TestApp(
-    scanId: scanId,
-    recentScans: recentScans,
-  ));
+  runApp(Module2TestApp(scanId: scanId, recentScans: recentScans));
 }
 
 class Module2TestApp extends StatelessWidget {
@@ -61,9 +58,7 @@ class Module2TestApp extends StatelessWidget {
     return MaterialApp(
       title: 'DSC Token Manager - Module 2 Test',
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Module 2 - Save Scan Results Test'),
-        ),
+        appBar: AppBar(title: const Text('Module 2 - Save Scan Results Test')),
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: ListView(

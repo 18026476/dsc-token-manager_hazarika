@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class RiskIndicator extends StatelessWidget {
   final String riskLevel;
 
-  const RiskIndicator({
-    super.key,
-    required this.riskLevel,
-  });
+  const RiskIndicator({super.key, required this.riskLevel});
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +23,7 @@ class RiskIndicator extends StatelessWidget {
         leading: Icon(icon),
         title: Text(
           "Risk Level: $riskLevel",
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         subtitle: Text(message),
       ),

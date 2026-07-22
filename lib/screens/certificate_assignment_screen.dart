@@ -82,9 +82,7 @@ class _CertificateAssignmentScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Certificate Assignment'),
-      ),
+      appBar: AppBar(title: const Text('Certificate Assignment')),
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -118,14 +116,18 @@ class _CertificateAssignmentScreenState
 
                               return DataRow(
                                 cells: [
-                                  DataCell(Text(
-                                      cert['holder']?.toString() ?? '')),
-                                  DataCell(Text(
-                                      cert['status']?.toString() ?? '')),
-                                  DataCell(Text(
-                                      cert['expiry_date']?.toString() ?? '')),
-                                  DataCell(Text(
-                                      employeeName(selectedEmployeeId))),
+                                  DataCell(
+                                    Text(cert['holder']?.toString() ?? ''),
+                                  ),
+                                  DataCell(
+                                    Text(cert['status']?.toString() ?? ''),
+                                  ),
+                                  DataCell(
+                                    Text(cert['expiry_date']?.toString() ?? ''),
+                                  ),
+                                  DataCell(
+                                    Text(employeeName(selectedEmployeeId)),
+                                  ),
                                   DataCell(
                                     DropdownButton<int>(
                                       value: selectedEmployeeId,
@@ -148,9 +150,9 @@ class _CertificateAssignmentScreenState
                                       onPressed: selectedEmployeeId == null
                                           ? null
                                           : () => saveAssignment(
-                                                thumbprint,
-                                                selectedEmployeeId,
-                                              ),
+                                              thumbprint,
+                                              selectedEmployeeId,
+                                            ),
                                       child: const Text('Save'),
                                     ),
                                   ),

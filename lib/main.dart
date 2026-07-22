@@ -13,10 +13,7 @@ class DscTokenManagerApp extends StatelessWidget {
     return MaterialApp(
       title: 'DSC Token Manager',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.blue,
-      ),
+      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.blue),
       home: const DashboardScreen(),
     );
   }

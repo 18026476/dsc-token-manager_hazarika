@@ -53,7 +53,8 @@ class ReportsScreen extends StatelessWidget {
       title: row['title']?.toString() ?? 'Unknown change',
       description: row['description']?.toString() ?? '',
       severity: row['severity']?.toString() ?? 'Info',
-      detectedAt: DateTime.tryParse(row['detected_at']?.toString() ?? '') ??
+      detectedAt:
+          DateTime.tryParse(row['detected_at']?.toString() ?? '') ??
           DateTime.now(),
     );
   }
@@ -70,8 +71,9 @@ class ReportsScreen extends StatelessWidget {
           future: changeDetectionService.getRecentChangeHistory(),
           builder: (context, historySnapshot) {
             final historyRows = historySnapshot.data ?? [];
-            final historyChanges =
-                historyRows.map(_historyToChangeModel).toList();
+            final historyChanges = historyRows
+                .map(_historyToChangeModel)
+                .toList();
 
             return Padding(
               padding: const EdgeInsets.all(16),
@@ -166,9 +168,7 @@ class ReportsScreen extends StatelessWidget {
                           snapshot.connectionState != ConnectionState.waiting)
                         const Text("No change detection data available yet."),
 
-                      ...changes.map(
-                        (change) => ChangeTile(change: change),
-                      ),
+                      ...changes.map((change) => ChangeTile(change: change)),
 
                       const SizedBox(height: 24),
 

@@ -13,10 +13,7 @@ Future<void> main() async {
 class Module7TestApp extends StatelessWidget {
   final Map<String, dynamic> result;
 
-  const Module7TestApp({
-    super.key,
-    required this.result,
-  });
+  const Module7TestApp({super.key, required this.result});
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +22,7 @@ class Module7TestApp extends StatelessWidget {
     return MaterialApp(
       title: 'Module 7 - Change Detection',
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Module 7 - Change Detection Test'),
-        ),
+        appBar: AppBar(title: const Text('Module 7 - Change Detection Test')),
         body: Padding(
           padding: const EdgeInsets.all(20),
           child: ListView(

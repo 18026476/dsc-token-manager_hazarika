@@ -111,23 +111,27 @@ $AllCertificates | ConvertTo-Json -Depth 5
         'Store',
         'Serial Number',
         'Thumbprint',
-        'Has Private Key'
+        'Has Private Key',
       ],
-      ...certificates.map((cert) => [
-            cert.holder,
-            cert.issuer,
-            cert.expiryDate,
-            cert.daysLeft,
-            cert.status,
-            cert.possibleDsc,
-            cert.store,
-            cert.serialNumber,
-            cert.thumbprint,
-            cert.hasPrivateKey,
-          ])
+      ...certificates.map(
+        (cert) => [
+          cert.holder,
+          cert.issuer,
+          cert.expiryDate,
+          cert.daysLeft,
+          cert.status,
+          cert.possibleDsc,
+          cert.store,
+          cert.serialNumber,
+          cert.thumbprint,
+          cert.hasPrivateKey,
+        ],
+      ),
     ];
 
-    final csvData = rows.map((row) => row.map(_csvEscape).join(',')).join('\r\n');
+    final csvData = rows
+        .map((row) => row.map(_csvEscape).join(','))
+        .join('\r\n');
 
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}\\dsc_certificate_inventory.csv');

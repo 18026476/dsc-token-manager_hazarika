@@ -244,9 +244,7 @@ class _OwnershipReportScreenState extends State<OwnershipReportScreen> {
 
   Widget _auditLogView() {
     if (auditLogs.isEmpty) {
-      return const Center(
-        child: Text('No assignment audit logs found yet.'),
-      );
+      return const Center(child: Text('No assignment audit logs found yet.'));
     }
 
     return Padding(
